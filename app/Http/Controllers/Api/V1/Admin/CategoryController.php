@@ -47,10 +47,16 @@ class CategoryController extends Controller
     public function show($slug)
     {
         $category = Category::with(['translations', 'children.translations', 'books.translations'])
-            ->where('slug', $slug)
+        ->where('slug', $slug)
+        ->with(['children', 'books.image'])
             ->firstOrFail();
+            $books = $category->books()->with('image')->paginate(10);
 
-        return new CategoryResource($category);
+        return response()->json([
+            'category' => $category,
+            'books' => $books
+        ]);
+
     }
 
         public function update(UpdateCategoryRequest $request, Category $category)

@@ -11,6 +11,10 @@ class CreateBookCategoryTable extends Migration
             $table->id();
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->string('slug')->unique();
+            $table->json('title'); // tarjima uchun JSON
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

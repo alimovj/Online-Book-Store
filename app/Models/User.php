@@ -52,4 +52,11 @@ class User extends Authenticatable
 {
     $this->notify(new VerifyEmailNotification());
 }
+ 
+public function likes()
+{
+    return $this->hasMany(Like::class);
+}
+
+
 }

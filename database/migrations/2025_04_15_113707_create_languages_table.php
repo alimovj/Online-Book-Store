@@ -9,9 +9,11 @@ class CreateLanguagesTable extends Migration
     {
         Schema::create('languages', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique(); // uz, en, ru
-            $table->string('name');           // Uzbek, English, Russian
-            $table->timestamps();
+            $table->string('code')->unique(); // uz, en, ru 
+             $table->string('name'); // O’zbek tili, Rus tili
+             $table->string('prefix')->unique(); // uz, ru, en
+             $table->boolean('is_active')->default(true); // aktiv yoki yo‘q    
+             $table->timestamps();
         });
     }
 

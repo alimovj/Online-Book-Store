@@ -26,11 +26,18 @@ class LanguageController extends Controller
     public function store(StoreLanguageRequest $request)
     {
         $language = Language::create($request->validated());
+        $language = Language::create([
+            'name' => $request->name,
+            'code' => $request->code,
+            'is_active' => $request->is_active ?? true,
+        ]);
 
         return response()->json([
-            'message' => __('Language created successfully.'),
-            'data' => new LanguageResource($language)
+            'status' => true,
+            'message' => __('Language created'),
+            'data' => $language,
         ]);
+        
     }
 
     public function show($id)
@@ -43,7 +50,11 @@ class LanguageController extends Controller
     {
         $language = Language::findOrFail($id);
         $language->update($request->validated());
-
+        $language->update([
+            'name' => $request->name,
+            'code' => $request->code,
+            'is_active' => $request->is_active ?? true,
+        ]);
         return response()->json([
             'message' => __('Language updated successfully.'),
             'data' => new LanguageResource($language)
@@ -59,4 +70,13 @@ class LanguageController extends Controller
             'message' => __('Language deleted successfully.')
         ]);
     }
+    
+    public function activeLanguages()
+    {
+        return response()->json([
+            'status' => true,
+            'data' => Language::where('is_active', true)->get(),
+        ]);
+    }
+
 }

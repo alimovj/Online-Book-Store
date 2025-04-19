@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Translation extends Model
 {
-    protected $fillable = ['language_id', 'book_id', 'title', 'description' , 'locale', 'key', 'value'];
+    protected $fillable = ['locale', 'key', 'value', 'is_active'];   
 
     public function language()
     {

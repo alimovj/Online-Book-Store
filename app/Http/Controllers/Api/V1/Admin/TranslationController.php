@@ -12,25 +12,32 @@ use App\Http\Requests\UpdateTranslationRequest;
 
 class TranslationController extends Controller
 {
-    /**
-     * GET /api/v1/translations?lang=uz
-     * Faol tarjimalarni olish va keshga yozish
-     */
+   
     public function index(Request $request)
     {
-        $lang = $request->get('lang', App::getLocale());
+       
+        $locale = $request->header('locale'); // frontend dan uzatiladigan header: locale
 
-        $translations = Cache::rememberForever("translations_$lang", function () use ($lang) {
-            return Translation::where('is_active', true)
-                ->where('locale', $lang)
-                ->pluck('value', 'key');
-        });
+        $translations = Translation::query()
+            ->where('is_active', true)
+            ->when($locale, function ($query, $locale) {
+                $query->where('locale', $locale);
+            })
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->key => $item->value];
+            });
 
         return response()->json([
+            'locale' => $locale ?? 'all',
+            'translations' => $translations,
             'status' => true,
             'message' => __('messages.success'),
             'data' => $translations,
-        ]);
+        
+
+    ]);
+
     }
 
     /**
@@ -96,5 +103,14 @@ class TranslationController extends Controller
         return Cache::remember('translations', 60, function () {
             return Translation::all();
         });
+    }
+    public function getByLocale($locale)
+    {
+        $translations = Translation::where('locale', $locale)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $translations
+        ]);
     }
 }

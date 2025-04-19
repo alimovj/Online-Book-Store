@@ -14,9 +14,8 @@ class ConvertCurrencyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => 'required|numeric|min:0',
-            'from' => 'required|string|exists:currencies,code',
-            'to' => 'required|string|exists:currencies,code',
+           'book_id' => 'required|exists:books,id',
+            'currency' => 'required|in:UZS,USD,RUB',
         ];
     }
 }

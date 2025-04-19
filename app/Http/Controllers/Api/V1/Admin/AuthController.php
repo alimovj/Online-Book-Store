@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Foydalanuvchini ro'yxatdan o'tkazish
-     */
+   
     public function register(RegisterRequest $request)
     {
         $user = User::create([

@@ -12,6 +12,9 @@ class BooksTable extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('content')->nullable();
+            $table->json('description')->nullable(); // ko‘p tilda tavsif
+           $table->string('author');
+           $table->decimal('price', 10, 2);
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Muallif
             $table->timestamps();
         });

@@ -11,13 +11,13 @@ class CreateTranslationsTable extends Migration
             $table->id();
             $table->foreignId('language_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->text('description')->nullable();
             $table->string('locale');
             $table->string('key');
             $table->text('value');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
-        });
+            $table->unique(['key', 'locale']);
+        }); 
     }
 
     public function down()

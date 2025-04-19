@@ -1,22 +1,36 @@
 <?php
+
 namespace App\Http\Controllers\API\V1;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\API\V1\Book\StoreBookRequest;
-use App\Http\Requests\API\V1\Book\UpdateBookRequest;
-use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\BookResource;
+use App\Http\Requests\API\V1\Book\StoreBookRequest;
+use App\Http\Requests\API\V1\Book\UpdateBookRequest;
+use App\Http\Requests\Currency\ConvertCurrencyRequest;
 
 class BookController extends Controller
 {
     /**
-     * Kitoblar ro'yxati (pagination bilan)
+     * Kitoblar ro‘yxati (filtrlash va paginatsiya bilan)
      */
     public function index(Request $request)
     {
         $books = Book::with(['categories', 'translations', 'images'])
+            ->when($request->filled('category_id'), fn ($q) =>
+                $q->whereHas('categories', fn ($q2) =>
+                    $q2->where('id', $request->category_id)))
+            ->when($request->filled('price_from'), fn ($q) =>
+                $q->where('price', '>=', $request->price_from))
+            ->when($request->filled('price_to'), fn ($q) =>
+                $q->where('price', '<=', $request->price_to))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('title', 'like', "%{$request->search}%")
+                  ->orWhere('author', 'like', "%{$request->search}%")
+                  ->orWhere('description', 'like', "%{$request->search}%");
+            })
             ->latest()
             ->paginate(10);
 
@@ -24,7 +38,7 @@ class BookController extends Controller
     }
 
     /**
-     * Bitta kitobni ko‘rsatish
+     * Bitta kitobni ko‘rish (slug orqali)
      */
     public function show($slug)
     {
@@ -36,7 +50,7 @@ class BookController extends Controller
     }
 
     /**
-     * Kitob yaratish
+     * Yangi kitob qo‘shish
      */
     public function store(StoreBookRequest $request)
     {
@@ -57,10 +71,10 @@ class BookController extends Controller
                 ]);
             }
 
-            // Categorylar
+            // Kategoriyalarni ulash
             $book->categories()->sync($request->category_ids);
 
-            // Rasm yuklash
+            // Rasmni saqlash
             if ($request->hasFile('image')) {
                 $book->images()->create([
                     'url' => $request->file('image')->store('books', 'public'),
@@ -68,6 +82,7 @@ class BookController extends Controller
             }
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => __('book.created_successfully'),
@@ -76,22 +91,24 @@ class BookController extends Controller
 
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Something went wrong.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * Kitobni yangilash
+     * Mavjud kitobni yangilash
      */
     public function update(UpdateBookRequest $request, $slug)
     {
         $book = Book::where('slug', $slug)->firstOrFail();
 
         DB::beginTransaction();
+
         try {
             $book->update([
                 'author' => $request->author,
@@ -109,12 +126,13 @@ class BookController extends Controller
                 );
             }
 
-            // Category
+            // Kategoriyalarni yangilash
             $book->categories()->sync($request->category_ids);
 
-            // Rasm yangilash (optional)
+            // Yangi rasm bo‘lsa, eski rasmni o‘chirib, yangi rasmni saqlash
             if ($request->hasFile('image')) {
                 $book->images()->delete();
+
                 $book->images()->create([
                     'url' => $request->file('image')->store('books', 'public'),
                 ]);
@@ -130,6 +148,7 @@ class BookController extends Controller
 
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Update failed',
@@ -138,6 +157,9 @@ class BookController extends Controller
         }
     }
 
+    /**
+     * Kitobni o‘chirish (slug orqali)
+     */
     public function destroy($slug)
     {
         $book = Book::where('slug', $slug)->firstOrFail();
@@ -150,6 +172,28 @@ class BookController extends Controller
         return response()->json([
             'status' => true,
             'message' => __('book.deleted_successfully'),
+        ]);
+    }
+
+    public function convert(ConvertCurrencyRequest $request)
+    {
+        $book = Book::find($request->book_id);
+        $convertedPrice = $book->getPriceIn($request->currency);
+
+        if ($convertedPrice === null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Currency rate not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Price converted',
+            'data' => [
+                'price' => $convertedPrice,
+                'currency' => $request->currency
+            ]
         ]);
     }
 }

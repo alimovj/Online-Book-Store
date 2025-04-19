@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\UserVerifyMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -22,6 +23,6 @@ class SendVerificationEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        UserVerifyMail::to($user->email)->send();
     }
 }
