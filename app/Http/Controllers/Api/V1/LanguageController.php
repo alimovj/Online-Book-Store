@@ -14,7 +14,7 @@ class LanguageController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth:sanctum', 'role:admin'])📥 Ren
+        $this->middleware(['auth:sanctum', 'role:admin'])📥 Re
     }
 
     public function index()
