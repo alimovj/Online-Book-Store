@@ -11,10 +11,8 @@ use App\Http\Requests\Admin\UpdateCategoryRequest;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the categories with pagination.
-     */
-    public function index()
+    
+               public function index(  $slug)
     {
         $categories = Category::with(['translations', 'children'])
             ->whereNull('parent_id')
@@ -23,9 +21,7 @@ class CategoryController extends Controller
         return CategoryResource::collection($categories);
     }
 
-    /**
-     * Store a newly created category in storage.
-     */
+   
     public function store(StoreCategoryRequest $request)
     {
         $data = $request->validated();
@@ -47,9 +43,7 @@ class CategoryController extends Controller
         return new CategoryResource($category->load('translations'));
     }
 
-    /**
-     * Display the specified category with its children and books.
-     */
+    
     public function show($slug)
     {
         $category = Category::with(['translations', 'children.translations', 'books.translations'])
@@ -59,10 +53,7 @@ class CategoryController extends Controller
         return new CategoryResource($category);
     }
 
-    /**
-     * Update the specified category in storage.
-     */
-    public function update(UpdateCategoryRequest $request, Category $category)
+        public function update(UpdateCategoryRequest $request, Category $category)
     {
         $data = $request->validated();
 
@@ -76,9 +67,7 @@ class CategoryController extends Controller
         return new CategoryResource($category->load('translations'));
     }
 
-    /**
-     * Remove the specified category from storage.
-     */
+    
     public function destroy(Category $category)
     {
         $category->delete();

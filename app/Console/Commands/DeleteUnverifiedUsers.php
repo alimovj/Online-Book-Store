@@ -3,28 +3,23 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Models\User;
+use Carbon\Carbon;
 
 class DeleteUnverifiedUsers extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:delete-unverified-users';
+    protected $signature = 'users:delete-unverified';
+    protected $description = '3 kundan beri email tasdiqlamagan foydalanuvchilarni o‘chirish';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
-        //
+        $users = User::whereNull('email_verified_at')
+            ->where('created_at', '<', Carbon::now()->subDays(3))
+            ->get();
+
+        foreach ($users as $user) {
+            $user->delete();
+            $this->info("Foydalanuvchi o‘chirildi: {$user->email}");
+        }
     }
 }
