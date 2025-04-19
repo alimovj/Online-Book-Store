@@ -14,7 +14,7 @@ class LanguageController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth:sanctum', 'role:admin']);
+        $this->middleware(['auth:sanctum', 'role:admin'])📥 Renamed image folder to 'books'
     }
 
     public function index()
