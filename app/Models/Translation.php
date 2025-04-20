@@ -12,8 +12,5 @@ class Translation extends Model
         return $this->belongsTo(Language::class);
     }
 
-    public function book()
-    {
-        return $this->belongsTo(Book::class);
-    }
+   
 }

@@ -29,7 +29,7 @@ class WishlistController extends Controller
         ]);
     }
 
-    /**
+    /**Translations
      * Wishlistga yangi kitob qo‘shish
      */
     public function store($book_id): JsonResponse

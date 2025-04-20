@@ -5,7 +5,6 @@ namespace App\Providers;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
-
 class AuthServiceProvider extends ServiceProvider
 {
     

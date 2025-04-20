@@ -11,9 +11,7 @@ use App\Http\Resources\BookResource;
 
 class LikeController extends Controller
 {
-    /**
-     * Kitobga like bosish yoki unlike qilish
-     */
+   
     public function toggle(Request $request, Book $book)
     {
         $user = Auth::user();

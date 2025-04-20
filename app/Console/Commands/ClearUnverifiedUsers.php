@@ -10,7 +10,7 @@ class ClearUnverifiedUsers extends Command
 {
     protected $signature = 'users:clear-unverified';
 
-    protected $description = '3 kundan beri email tasdiqlamagan userlarni o‘chirish';
+    protected $description = '3 kundan beri email tasdiqlamagan userlarni ochirish';
 
     public function handle()
     {
@@ -18,6 +18,6 @@ class ClearUnverifiedUsers extends Command
             ->where('created_at', '<=', now()->subDays(3))
             ->delete();
 
-        $this->info("$deleted ta tasdiqlanmagan user o‘chirildi.");
+        $this->info("$deleted ta tasdiqlanmagan user ochirildi.");
     }
 }

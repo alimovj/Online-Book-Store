@@ -16,11 +16,17 @@ class Book extends Model
     ];
 
     // 📘 Translations
-    public function translations(): HasMany
+    public function translations()
     {
-        return $this->hasMany(Translation::class);
+        return $this->hasMany(BookTranslation::class);
     }
-
+    
+    public function translation($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        return $this->translations->where('locale', $locale)->first();
+    }
+    
     // 📸 Images
     public function images()
     {
@@ -66,4 +72,8 @@ class Book extends Model
     
         return $rate ? round($this->price / $rate->rate, 2) : null;
     }
+
+    
+
+
 }
